@@ -4,9 +4,19 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const router = require('./routes/index');
+const db = require('./database/db');
+const session = require('express-session')
+const MongoStore = require('connect-mongo')(session);
+
 const app = express();
 
-const db = require('./database/db');
+app.use(session({
+    secret: 'xiaoWen',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {secure: false, exires: 1000 * 60 * 60 * 2},
+    store: new MongoStore({ mongooseConnection: db})
+}))
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

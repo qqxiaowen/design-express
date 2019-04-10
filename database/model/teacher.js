@@ -18,7 +18,6 @@ password: String,
 desc: String,
 sex: Number,
 avatar: String,
-nicheng: String,
 faculty: {
     type: mongoose.SchemaTypes.ObjectId,
     ref: 'faculty'

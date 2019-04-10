@@ -11,5 +11,6 @@ var router = express.Router();
 router.use('/init', require('../database/controller/intiData'));
 router.use('/faculty', require('../database/controller/faculty'));
 router.use('/major', require('../database/controller/major'));
-router.use('/class', require('../database/controller/class'));
+router.use('/grade', require('../database/controller/grade'));
+router.use('/user', require('../database/controller/user'));
 module.exports = router;

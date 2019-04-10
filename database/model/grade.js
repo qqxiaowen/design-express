@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const classTable = new Schema({
-    className: String,
+const grade = new Schema({
+    gradeName: String,
     major: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: 'major'
     }
 },{versionKey: false, timestamps: {createdAt: 'createTime', updatedAt: 'updateTime'}})
 
-module.exports = mongoose.model('classTable', classTable);
+module.exports = mongoose.model('grade', grade);

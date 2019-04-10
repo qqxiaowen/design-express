@@ -18,12 +18,10 @@ password: String,
 desc: String,
 sex: Number,
 avatar: String,
-nicheng: String,
-calss: {
+grade: {
     type: mongoose.SchemaTypes.ObjectId,
-    ref: 'class'
-},
-
+    ref: 'grade'
+}
 },{versionKey: false, timestamps: {createdAt: 'createTime', updatedAt: 'updateTime'}})
 
 module.exports = mongoose.model('student', student);
