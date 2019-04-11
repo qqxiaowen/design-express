@@ -45,7 +45,7 @@ router.post('/teacher', adminauth, async (req, res, next) => {
 })
 
 // 获取全部管理员用户
-router.get(`/teacher`, adminauth, async (req,res,next) => {
+router.get(`/teacher`, adminauth, async (req, res, next) => {
     try {
         let {pn = 1, size = 10} = req.query;
         pn = parseInt(pn);
@@ -73,7 +73,7 @@ router.get(`/teacher`, adminauth, async (req,res,next) => {
 })
 
 // 获取单个管理员用户
-router.get(`/teacher/:id`, adminauth, async (req,res,next) => {
+router.get(`/teacher/:id`, adminauth, async (req, res, next) => {
     try{
         let {id} = req.params;
 
@@ -102,7 +102,7 @@ router.get(`/teacher/:id`, adminauth, async (req,res,next) => {
 })
 
 // 修改单个管理员用户
-router.put(`/teacher/:id`, adminauth, async (req,res,next) => {
+router.put(`/teacher/:id`, adminauth, async (req, res, next) => {
     try{
         let {id} = req.params;
         let {username, password, faculty, desc, avatar, sex} = req.body;
@@ -120,7 +120,7 @@ router.put(`/teacher/:id`, adminauth, async (req,res,next) => {
 })
 
 // 删除单个管理员用户
-router.delete(`/teacher/:id`, adminauth, async (req,res,next) => {
+router.delete(`/teacher/:id`, adminauth, async (req ,res, next) => {
     try{
         let {id} = req.params;
         await teacher.deleteOne({_id: id})
@@ -173,7 +173,7 @@ router.post('/student', adminauth, async (req, res, next) => {
 })
 
 // 获取全部普通用户
-router.get(`/student`, adminauth, async (req,res,next) => {
+router.get(`/student`, adminauth, async (req, res, next) => {
     try {
         let {pn = 1, size = 10} = req.query;
         pn = parseInt(pn);
@@ -185,11 +185,14 @@ router.get(`/student`, adminauth, async (req,res,next) => {
             .select('-password')
             .populate({
                 path: 'grade',
-            })
-            .populate({
-                path: 'major',
+                select: 'gradeName major',
                 populate: {
-                    path: 'faculty'
+                    path: 'major',
+                    select: 'majorName faculty',
+                    populate: {
+                        path: 'faculty',
+                        select: 'facultyName'
+                    }
                 }
             });
 
@@ -206,16 +209,63 @@ router.get(`/student`, adminauth, async (req,res,next) => {
     }
 })
 
+// 获取某个班级下的所有用户
+router.get('/student/grade/:id', auth, async (req, res, next) => {
+    try {
+        let {id} = req.params;
+        let {pn = 1, size = 10} = req.query;
+        pn = parseInt(pn);
+        size = parseInt(size);
+
+        let data =  await student.find({grade: id})
+            .skip((pn-1) * size)
+            .limit(size)
+            .select('-password')
+            .populate({
+                path: 'grade',
+                select: 'gradeName major',
+                populate: {
+                    path: 'major',
+                    select: 'majorName faculty',
+                    populate: {
+                        path: 'faculty',
+                        select: 'facultyName'
+                    }
+                }
+            });
+
+        let count = await student.count({grade: id});
+        res.json({
+            code: 0,
+            msg: '获取班级下用户成功',
+            data,
+            count
+        })
+
+    } catch(err) {
+        next(err);
+    }
+})
+
 // 获取单个普通用户
-router.get(`/student/:id`, auth, async (req,res,next) => {
+router.get(`/student/:id`, auth, async (req, res, next) => {
     try{
         let {id} = req.params;
 
         let data = await student.findById({_id:id})
         .select('-password')
-        // .populate({
-        //     path: 'grade',
-        // });
+        .populate({
+            path: 'grade',
+            select: 'gradeName major',
+            populate: {
+                path: 'major',
+                select: 'majorName faculty',
+                populate: {
+                    path: 'faculty',
+                    select: 'facultyName'
+                }
+            }
+        });
         if (data) {
             res.json({
                 code: 0,
@@ -235,7 +285,7 @@ router.get(`/student/:id`, auth, async (req,res,next) => {
 })
 
 // 修改单个普通用户
-router.put(`/student/:id`, adminauth, async (req,res,next) => {
+router.put(`/student/:id`, adminauth, async (req, res, next) => {
     try{
         let {id} = req.params;
         let {username, password, grade, desc, avatar, sex} = req.body;
@@ -254,7 +304,7 @@ router.put(`/student/:id`, adminauth, async (req,res,next) => {
 })
 
 // 删除单个普通用户
-router.delete(`/student/:id`,adminauth,async (req,res,next) => {
+router.delete(`/student/:id`,adminauth,async (req, res, next) => {
     try{
         let {id} = req.params;
         await student.deleteOne({_id: id})
@@ -317,7 +367,7 @@ router.post('/login', async (req, res, next) => {
 // 学生表的班级信息多表关联问题 populate方法
 
 // 退出登录
-router.get(`/logout`, auth , (req,res) => {
+router.get(`/logout`, auth , (req, res) => {
     req.session.user = ''
     res.json({
         code: 0,
