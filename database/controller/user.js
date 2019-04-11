@@ -304,7 +304,7 @@ router.put(`/student/:id`, adminauth, async (req, res, next) => {
 })
 
 // 删除单个普通用户
-router.delete(`/student/:id`,adminauth,async (req, res, next) => {
+router.delete(`/student/:id` ,adminauth, async (req, res, next) => {
     try{
         let {id} = req.params;
         await student.deleteOne({_id: id})
@@ -364,10 +364,8 @@ router.post('/login', async (req, res, next) => {
     }
 })
 
-// 学生表的班级信息多表关联问题 populate方法
-
 // 退出登录
-router.get(`/logout`, auth , (req, res) => {
+router.get(`/logout`, auth, (req, res) => {
     req.session.user = ''
     res.json({
         code: 0,

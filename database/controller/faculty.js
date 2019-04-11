@@ -2,6 +2,8 @@ const router = require('express').Router();
 const faculty = require('../model/faculty');
 const major = require('../model/major');
 
+const adminauth = require('./adminauth');
+
 // 获取所有院系信息
 router.get('/', async (req, res, next) => {
     try {
@@ -18,14 +20,14 @@ router.get('/', async (req, res, next) => {
 })
 
 // 添加院系
-router.post('/', async (req, res, next) => {
+router.post('/', adminauth, async (req, res, next) => {
     try {
         let {facultyName} = req.body;
-        let isRequire = await faculty.find({facultyName});
+        let isRequire = await faculty.findOne({facultyName});
         if (isRequire) {
             res.json({
                 code: 300,
-                msg: '院系名冲突'
+                msg: '已有该院系'
             })
         } else {
             let data = await faculty.create({facultyName});
@@ -41,7 +43,7 @@ router.post('/', async (req, res, next) => {
 })
 
 // 删除院系
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', adminauth, async (req, res, next) => {
     try {
         let {id} = req.params;
         

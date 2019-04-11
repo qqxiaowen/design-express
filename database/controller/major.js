@@ -2,6 +2,8 @@ const router = require('express').Router();
 const major = require('../model/major');
 const grade = require('../model/grade');
 
+const adminauth = require('./adminauth');
+
 // 获取所有专业信息
 router.get('/', async (req, res, next) => {
     try {
@@ -44,7 +46,7 @@ router.get('/:id', async (req, res, next) => {
 })
 
 // 添加专业
-router.post('/', async (req, res, next) => {
+router.post('/', adminauth, async (req, res, next) => {
     try {
         let {faculty, majorName} = req.body;
 
@@ -70,7 +72,7 @@ router.post('/', async (req, res, next) => {
 })
 
 // 删除专业
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', adminauth, async (req, res, next) => {
     try {
         let {id} = req.params;
         

@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const grade = require('../model/grade');
+const adminauth = require('./adminauth');
 
 // 获取所有班级信息
 router.get('/', async (req, res, next) => {
@@ -63,7 +64,7 @@ router.get('/:id', async (req, res, next) => {
 })
 
 // 添加班级
-router.post('/', async (req, res, next) => {
+router.post('/', adminauth, async (req, res, next) => {
     try {
         let {gradeName, major} = req.body;
 
@@ -89,7 +90,7 @@ router.post('/', async (req, res, next) => {
 })
 
 // 删除班级
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', adminauth, async (req, res, next) => {
     try {
         let {id} = req.params;
 
