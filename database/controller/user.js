@@ -323,7 +323,7 @@ router.put(`/student/:id`, auth, async (req, res, next) => {
 })
 
 // 删除单个普通用户
-router.delete(`/student/:id` ,adminauth, async (req, res, next) => {
+router.delete(`/student/:id`, adminauth, async (req, res, next) => {
     try{
         let {id} = req.params;
         await student.deleteOne({_id: id})
