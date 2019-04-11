@@ -1,5 +1,7 @@
 const router = require('express').Router();
+
 const grade = require('../model/grade');
+
 const adminauth = require('./adminauth');
 
 // 获取所有班级信息
@@ -89,6 +91,23 @@ router.post('/', adminauth, async (req, res, next) => {
     }
 })
 
+// 修改班级
+router.put('/:id', adminauth, async (req, res, next) => {
+    try {
+        let {id} = req.params;
+        let {gradeName, major} = req.body;
+
+        await grade.updateOne({_id: id}, {$set: {gradeName, major}});
+        res.json({
+            code: 0,
+            msg: '修改成功'
+        })
+
+    } catch(err) {
+        next(err);
+    }
+})
+
 // 删除班级
 router.delete('/:id', adminauth, async (req, res, next) => {
     try {
@@ -97,7 +116,7 @@ router.delete('/:id', adminauth, async (req, res, next) => {
         await grade.deleteOne({_id: id});
         res.json({
             code: 0,
-            msg: '删除成功',
+            msg: '删除成功'
         })
 
     } catch(err) {

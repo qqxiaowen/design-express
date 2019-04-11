@@ -1,4 +1,5 @@
 const router = require('express').Router();
+
 const faculty = require('../model/faculty');
 const major = require('../model/major');
 
@@ -37,6 +38,22 @@ router.post('/', adminauth, async (req, res, next) => {
                 data
             })
         }
+    } catch(err) {
+        next(err);
+    }
+})
+
+// 修改院系
+router.put('/:id', adminauth, async (req, res, next) => {
+    try {
+        let {id} = req.params;
+        let {facultyName} = req.body;
+        
+        await faculty.updateOne({_id: id},{$set: {facultyName}});
+        res.json({
+            code: 0,
+            msg: '修改成功'
+        })
     } catch(err) {
         next(err);
     }

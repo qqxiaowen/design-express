@@ -1,4 +1,5 @@
 const router = require('express').Router();
+
 const major = require('../model/major');
 const grade = require('../model/grade');
 
@@ -71,6 +72,22 @@ router.post('/', adminauth, async (req, res, next) => {
     }
 })
 
+// 修改专业
+router.put('/:id', adminauth, async (req, res, next) => {
+    try {
+        let {id} = req.params;
+        let {faculty, majorName} = req.body;
+
+        await major.updateOne({_id: id}, {$set: {faculty, majorName}});
+        res.json({
+            code: 0,
+            msg: '修改成功'
+        })
+
+    } catch(err) {
+        next(err);
+    }
+})
 // 删除专业
 router.delete('/:id', adminauth, async (req, res, next) => {
     try {
@@ -80,14 +97,14 @@ router.delete('/:id', adminauth, async (req, res, next) => {
         if (gradeData) {
             res.json({
                 code: 300,
-                msg: '该院系下还有专业',
+                msg: '该院系下还有专业'
             })
         } else {
 
             await major.deleteOne({_id: id});
             res.json({
                 code: 0,
-                msg: '删除成功',
+                msg: '删除成功'
             })
         }
 

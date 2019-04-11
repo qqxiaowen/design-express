@@ -3,6 +3,8 @@ const router = express.Router();
 
 const teacher = require('../model/teacher');
 const student = require('../model/student');
+const course = require('../model/course');
+
 const adminauth = require('./adminauth');
 const auth = require('./auth');
 
@@ -106,11 +108,10 @@ router.put(`/teacher/:id`, adminauth, async (req, res, next) => {
     try{
         let {id} = req.params;
         let {username, password, faculty, desc, avatar, sex} = req.body;
-        let data = await teacher.updateOne({_id: id},{$set:{username, password, faculty, desc, avatar, sex}})
+        await teacher.updateOne({_id: id}, {$set: {username, password, faculty, desc, avatar, sex}});
         res.json({
             code: 0,
-            msg: '修改成功',
-            data
+            msg: '修改成功'
         })
 
     } catch(err) {
@@ -123,11 +124,19 @@ router.put(`/teacher/:id`, adminauth, async (req, res, next) => {
 router.delete(`/teacher/:id`, adminauth, async (req ,res, next) => {
     try{
         let {id} = req.params;
-        await teacher.deleteOne({_id: id})
-        res.json({
-            code: 0,
-            msg: '删除成功'
-        })
+        let findCourse = course.findOne({teacher: id});
+        if (findCourse) {
+            res.json({
+                msg: '请先删除该教师下的课程表'
+            })
+        } else {
+
+            await teacher.deleteOne({_id: id})
+            res.json({
+                code: 0,
+                msg: '删除成功'
+            })
+        }
 
     } catch(err) {
         next(err);
@@ -284,18 +293,28 @@ router.get(`/student/:id`, auth, async (req, res, next) => {
    
 })
 
-// 修改单个普通用户
-router.put(`/student/:id`, adminauth, async (req, res, next) => {
+// 修改单个普通用户 管理员和个人用户可操作
+router.put(`/student/:id`, auth, async (req, res, next) => {
     try{
         let {id} = req.params;
         let {username, password, grade, desc, avatar, sex} = req.body;
+        let isAdmin = await teacher.findById(req.session.user._id);
+        if (isAdmin || req.session.user._id == id) {
+            // 是管理员用户 或个人用户
 
-        let data = await student.updateOne({_id: id},{$set:{username, password, grade, desc, avatar, sex}})
-        res.json({
-            code: 0,
-            msg: '修改成功',
-            data
-        })
+            await student.updateOne({_id: id},{$set: {username, password, grade, desc, avatar, sex}});
+            res.json({
+                code: 0,
+                msg: '修改成功'
+            })
+        } else {
+            res.json({
+                code: 300,
+                msg: '权限不足'
+            })
+        }
+
+        
 
     } catch(err) {
         next(err);

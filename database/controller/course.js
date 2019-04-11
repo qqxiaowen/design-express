@@ -1,4 +1,5 @@
 const router = require('express').Router();
+
 const course = require('../model/course');
 
 const adminauth = require('./adminauth');
@@ -69,6 +70,22 @@ router.post('/', adminauth, async (req, res, next) => {
                 data
             })
         }
+    } catch(err) {
+        next(err);
+    }
+})
+
+// 修改课程表
+router.put('/:id', adminauth, async (req, res, next) => {
+    try {
+        let {id} = req.params;
+        let {name, time_site, grade, teacher} = req.body;
+       
+        await course.updateOne({_id: id}, {$set: {name, time_site, grade, teacher}});
+        res.json({
+            code: 0,
+            msg: '修改成功'
+        })
     } catch(err) {
         next(err);
     }
