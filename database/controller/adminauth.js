@@ -3,6 +3,7 @@ module.exports = function(req, res, next) {
     if(req.session && req.session.user){
         //登录后
         let id = req.session.user._id;
+        console.log('session:     ',req.session.user)
         teacher.findById(id).then( data => {
             if (data) { 
                 //管理员登录
