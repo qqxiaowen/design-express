@@ -3,11 +3,11 @@ const router = express.Router();
 
 const clock = require('../model/clock');
 
-const adminauth = require('./adminauth');
+const adminAuth = require('./adminAuth');
 const auth = require('./auth');
 
 // 添加考勤表
-router.post('/', adminauth, async (req, res, next) => {
+router.post('/', adminAuth, async (req, res, next) => {
     try {
         let {clockName, content, teacher, grade, course} = req.body;
 
@@ -24,7 +24,7 @@ router.post('/', adminauth, async (req, res, next) => {
 })
 
 // 教师查看所有考勤记录 
-router.get('/teacher', adminauth, async (req, res, next) => {
+router.get('/teacher', adminAuth, async (req, res, next) => {
     try {
         let teacher = req.session.user._id;
 
@@ -53,7 +53,7 @@ router.get('/teacher', adminauth, async (req, res, next) => {
 })
 
 // 教师根据课程id查看考勤记录 
-router.get('/teacher/:course', adminauth, async (req, res, next) => {
+router.get('/teacher/:course', adminAuth, async (req, res, next) => {
     try {
         let teacher = req.session.user._id;
         let {course} = req.params;
@@ -119,7 +119,7 @@ router.get('/student/:course', auth, async (req, res, next) => {
 })
 
 // 教师修改某条考勤记录
-router.put('/:id', adminauth, async (req, res, next) => {
+router.put('/:id', adminAuth, async (req, res, next) => {
     try {
         let {id} = req.params;
         let {content} = req.body;
@@ -135,7 +135,7 @@ router.put('/:id', adminauth, async (req, res, next) => {
 })
 
 // 删除考勤记录
-router.delete('/:id', adminauth, async (req, res, next) => {
+router.delete('/:id', adminAuth, async (req, res, next) => {
     try {
         let {id} = req.params;
         await clock.deleteOne({_id: id});

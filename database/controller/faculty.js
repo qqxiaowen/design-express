@@ -3,7 +3,7 @@ const router = require('express').Router();
 const faculty = require('../model/faculty');
 const major = require('../model/major');
 
-const adminauth = require('./adminauth');
+const superAdminAuth = require('./superAdminAuth');
 
 // 获取所有院系信息
 router.get('/', async (req, res, next) => {
@@ -21,7 +21,7 @@ router.get('/', async (req, res, next) => {
 })
 
 // 添加院系
-router.post('/', adminauth, async (req, res, next) => {
+router.post('/', superAdminAuth, async (req, res, next) => {
     try {
         let {facultyName} = req.body;
         let isRequire = await faculty.findOne({facultyName});
@@ -44,7 +44,7 @@ router.post('/', adminauth, async (req, res, next) => {
 })
 
 // 修改院系
-router.put('/:id', adminauth, async (req, res, next) => {
+router.put('/:id', superAdminAuth, async (req, res, next) => {
     try {
         let {id} = req.params;
         let {facultyName} = req.body;
@@ -60,7 +60,7 @@ router.put('/:id', adminauth, async (req, res, next) => {
 })
 
 // 删除院系
-router.delete('/:id', adminauth, async (req, res, next) => {
+router.delete('/:id', superAdminAuth, async (req, res, next) => {
     try {
         let {id} = req.params;
         

@@ -21,7 +21,8 @@ avatar: String,
 faculty: {
     type: mongoose.SchemaTypes.ObjectId,
     ref: 'faculty'
-}
+},
+superAdmin: Number
 },{versionKey: false, timestamps: {createdAt: 'createTime', updatedAt: 'updateTime'}})
 
 module.exports = mongoose.model('teacher', teacher);

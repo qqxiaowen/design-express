@@ -2,7 +2,7 @@ const router = require('express').Router();
 
 const course = require('../model/course');
 
-const adminauth = require('./adminauth');
+const adminAuth = require('./adminAuth');
 
 // 获取某班级下的所有课程表
 router.get('/grade/:id', async (req, res, next) => {
@@ -53,7 +53,7 @@ router.get('/teacher/:id', async (req, res, next) => {
 })
 
 // 添加课程表
-router.post('/', adminauth, async (req, res, next) => {
+router.post('/', adminAuth, async (req, res, next) => {
     try {
         let {name, time_site, grade, teacher} = req.body;
         let isRequire = await course.findOne({name});
@@ -76,7 +76,7 @@ router.post('/', adminauth, async (req, res, next) => {
 })
 
 // 修改课程表
-router.put('/:id', adminauth, async (req, res, next) => {
+router.put('/:id', adminAuth, async (req, res, next) => {
     try {
         let {id} = req.params;
         let {name, time_site, grade, teacher} = req.body;
@@ -92,7 +92,7 @@ router.put('/:id', adminauth, async (req, res, next) => {
 })
 
 // 删除课程表
-router.delete('/:id', adminauth, async (req, res, next) => {
+router.delete('/:id', adminAuth, async (req, res, next) => {
     try {
         let {id} = req.params;
             

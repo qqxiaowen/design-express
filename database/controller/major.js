@@ -3,7 +3,7 @@ const router = require('express').Router();
 const major = require('../model/major');
 const grade = require('../model/grade');
 
-const adminauth = require('./adminauth');
+const superAdminAuth = require('./superAdminAuth');
 
 // 获取所有专业信息
 router.get('/', async (req, res, next) => {
@@ -47,7 +47,7 @@ router.get('/:id', async (req, res, next) => {
 })
 
 // 添加专业
-router.post('/', adminauth, async (req, res, next) => {
+router.post('/', superAdminAuth, async (req, res, next) => {
     try {
         let {faculty, majorName} = req.body;
 
@@ -73,7 +73,7 @@ router.post('/', adminauth, async (req, res, next) => {
 })
 
 // 修改专业
-router.put('/:id', adminauth, async (req, res, next) => {
+router.put('/:id', superAdminAuth, async (req, res, next) => {
     try {
         let {id} = req.params;
         let {faculty, majorName} = req.body;
@@ -88,8 +88,9 @@ router.put('/:id', adminauth, async (req, res, next) => {
         next(err);
     }
 })
+
 // 删除专业
-router.delete('/:id', adminauth, async (req, res, next) => {
+router.delete('/:id', superAdminAuth, async (req, res, next) => {
     try {
         let {id} = req.params;
         

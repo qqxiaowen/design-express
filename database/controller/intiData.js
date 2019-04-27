@@ -31,7 +31,8 @@ router.get('/', async (req, res, next) => {
                 desc: '这是第一个教师用户',
                 avatar: 'http://pbl.mawenli.xyz/avatar1.png',
                 faculty: addFaculty._id,
-                sex: 0
+                sex: 0,
+                superAdmin: 1
             })
     
             let addStudent = await student.create({

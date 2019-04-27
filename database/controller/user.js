@@ -5,11 +5,11 @@ const teacher = require('../model/teacher');
 const student = require('../model/student');
 const course = require('../model/course');
 
-const adminauth = require('./adminauth');
+const superAdminAuth = require('./superAdminAuth');
 const auth = require('./auth');
 
-// 注册管理员用户
-router.post('/teacher', adminauth, async (req, res, next) => {
+// 注册教师用户
+router.post('/teacher', superAdminAuth, async (req, res, next) => {
     try {
         let {username, password, numId, faculty, desc, avatar, sex} = req.body;
 
@@ -25,18 +25,16 @@ router.post('/teacher', adminauth, async (req, res, next) => {
             res.json({
                 msg: '该帐号已被注册'
             })
-        } else{
-            
+        } else {
             if (!avatar) {
                 let avatarNumber = Math.floor(Math.random() * 9);
                 avatar = `http://pbl.mawenli.xyz/avatar${avatarNumber}.png`;
             }
 
-            let data = await teacher.create({username, password, numId, faculty, desc, avatar, sex})
-
+            let data = await teacher.create({username, password, numId, faculty, desc, avatar, sex, superAdmin: 0})
             res.json({
                 code: 0,
-                msg: '添加管理员用户成功',
+                msg: '添加教师用户成功',
                 data
             })
         }
@@ -46,8 +44,8 @@ router.post('/teacher', adminauth, async (req, res, next) => {
     }
 })
 
-// 获取全部管理员用户
-router.get(`/teacher`, adminauth, async (req, res, next) => {
+// 获取全部教师用户
+router.get(`/teacher`, superAdminAuth, async (req, res, next) => {
     try {
         let {pn = 1, size = 10} = req.query;
         pn = parseInt(pn);
@@ -74,8 +72,8 @@ router.get(`/teacher`, adminauth, async (req, res, next) => {
     }
 })
 
-// 获取单个管理员用户
-router.get(`/teacher/:id`, adminauth, async (req, res, next) => {
+// 获取单个教师用户
+router.get(`/teacher/:id`, superAdminAuth, async (req, res, next) => {
     try{
         let {id} = req.params;
 
@@ -103,8 +101,8 @@ router.get(`/teacher/:id`, adminauth, async (req, res, next) => {
    
 })
 
-// 修改单个管理员用户
-router.put(`/teacher/:id`, adminauth, async (req, res, next) => {
+// 修改单个教师用户
+router.put(`/teacher/:id`, superAdminAuth, async (req, res, next) => {
     try{
         let {id} = req.params;
         let {username, password, faculty, desc, avatar, sex} = req.body;
@@ -120,8 +118,24 @@ router.put(`/teacher/:id`, adminauth, async (req, res, next) => {
     
 })
 
-// 删除单个管理员用户
-router.delete(`/teacher/:id`, adminauth, async (req ,res, next) => {
+// 为教师用户添加超级管理员权限
+router.put(`/teacher/:id`, superAdminAuth, async (req, res, next) => {
+    try{
+        let {id} = req.params;
+        await teacher.updateOne({_id: id}, {$set: {superAdmin: 1}});
+        res.json({
+            code: 0,
+            msg: '修改成功'
+        })
+
+    } catch(err) {
+        next(err);
+    }
+    
+})
+
+// 删除单个教师用户
+router.delete(`/teacher/:id`, superAdminAuth, async (req ,res, next) => {
     try{
         let {id} = req.params;
         let findCourse = course.findOne({teacher: id});
@@ -144,10 +158,10 @@ router.delete(`/teacher/:id`, adminauth, async (req ,res, next) => {
    
 })
 
-// 分割线-----------------------------------------------------------下面改成普通用户
+// 分割线-----------------------------------------------------------
 
 // 注册普通用户
-router.post('/student', adminauth, async (req, res, next) => {
+router.post('/student', superAdminAuth, async (req, res, next) => {
     try {
         let {username, password, numId, grade, desc, avatar, sex} = req.body;
 
@@ -182,7 +196,7 @@ router.post('/student', adminauth, async (req, res, next) => {
 })
 
 // 获取全部普通用户
-router.get(`/student`, adminauth, async (req, res, next) => {
+router.get(`/student`, superAdminAuth, async (req, res, next) => {
     try {
         let {pn = 1, size = 10} = req.query;
         pn = parseInt(pn);
@@ -298,9 +312,9 @@ router.put(`/student/:id`, auth, async (req, res, next) => {
     try{
         let {id} = req.params;
         let {username, password, grade, desc, avatar, sex} = req.body;
-        let isAdmin = await teacher.findById(req.session.user._id);
-        if (isAdmin || req.session.user._id == id) {
-            // 是管理员用户 或个人用户
+        let isTeacher = await teacher.findById(req.session.user._id);
+        if (isTeacher && isTeacher.superAdmin == 1 || req.session.user._id == id) {
+            // 是教师用户 或个人用户
 
             await student.updateOne({_id: id},{$set: {username, password, grade, desc, avatar, sex}});
             res.json({
@@ -323,7 +337,7 @@ router.put(`/student/:id`, auth, async (req, res, next) => {
 })
 
 // 删除单个普通用户
-router.delete(`/student/:id`, adminauth, async (req, res, next) => {
+router.delete(`/student/:id`, superAdminAuth, async (req, res, next) => {
     try{
         let {id} = req.params;
         await student.deleteOne({_id: id})

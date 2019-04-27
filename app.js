@@ -11,7 +11,7 @@ const MongoStore = require('connect-mongo')(session);
 const app = express();
 
 app.use(session({
-    secret: ' xiao ',
+    secret: ' xiao ', //设置加盐
     resave: false, //是否重新保存session
     saveUninitialized: false, //是否保存初始化
     cookie: {secure: false, expires: 1000 * 60 * 60 *2 }, // 是否是https协议 2小时后失效
