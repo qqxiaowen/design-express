@@ -11,17 +11,20 @@ router.get('/', async (req, res, next) => {
         let isFirstInit = await faculty.findOne({facultyName: '信息工程学院'});
         if (!isFirstInit) {
             let addFaculty = await faculty.create({
-                facultyName: '信息工程学院'
+                facultyName: '信息工程学院',
+                desc: '这是信心工程学院的简介'
             })
     
             let addMajor = await major.create({
                 majorName: '软件工程',
-                faculty: addFaculty._id
+                faculty: addFaculty._id,
+                desc: '这是软件工程专业的简介'
             })
     
             let addGrade = await grade.create({
                 gradeName: '软工1501B',
-                major: addMajor._id
+                major: addMajor._id,
+                desc: '这是软工1501B班的简介'
             })
     
             let addTeacher = await teacher.create({

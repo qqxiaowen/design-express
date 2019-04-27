@@ -49,7 +49,7 @@ router.get('/:id', async (req, res, next) => {
 // 添加专业
 router.post('/', superAdminAuth, async (req, res, next) => {
     try {
-        let {faculty, majorName} = req.body;
+        let {faculty, majorName, desc} = req.body;
 
         let isRequire = await major.findOne({faculty, majorName});
         if (isRequire) {
@@ -59,7 +59,7 @@ router.post('/', superAdminAuth, async (req, res, next) => {
             })
         } else {
 
-            let data = await major.create({faculty, majorName});
+            let data = await major.create({faculty, majorName, desc});
             res.json({
                 code: 0,
                 msg: '添加成功',
@@ -76,9 +76,9 @@ router.post('/', superAdminAuth, async (req, res, next) => {
 router.put('/:id', superAdminAuth, async (req, res, next) => {
     try {
         let {id} = req.params;
-        let {faculty, majorName} = req.body;
+        let {faculty, majorName, desc} = req.body;
 
-        await major.updateOne({_id: id}, {$set: {faculty, majorName}});
+        await major.updateOne({_id: id}, {$set: {faculty, majorName, desc}});
         res.json({
             code: 0,
             msg: '修改成功'

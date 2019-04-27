@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 const major = new Schema({
     majorName: String,
+    desc: String,
     faculty: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: 'faculty'

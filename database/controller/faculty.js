@@ -24,14 +24,14 @@ router.get('/', async (req, res, next) => {
 router.post('/', superAdminAuth, async (req, res, next) => {
     try {
         let {facultyName} = req.body;
-        let isRequire = await faculty.findOne({facultyName});
+        let isRequire = await faculty.findOne({facultyName, desc});
         if (isRequire) {
             res.json({
                 code: 300,
                 msg: '已有该院系'
             })
         } else {
-            let data = await faculty.create({facultyName});
+            let data = await faculty.create({facultyName, desc});
             res.json({
                 code: 0,
                 msg: '添加成功',
@@ -47,9 +47,9 @@ router.post('/', superAdminAuth, async (req, res, next) => {
 router.put('/:id', superAdminAuth, async (req, res, next) => {
     try {
         let {id} = req.params;
-        let {facultyName} = req.body;
+        let {facultyName, desc} = req.body;
         
-        await faculty.updateOne({_id: id},{$set: {facultyName}});
+        await faculty.updateOne({_id: id},{$set: {facultyName, desc}});
         res.json({
             code: 0,
             msg: '修改成功'

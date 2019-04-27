@@ -68,7 +68,7 @@ router.get('/:id', async (req, res, next) => {
 // 添加班级
 router.post('/', superAdminAuth, async (req, res, next) => {
     try {
-        let {gradeName, major} = req.body;
+        let {gradeName, major, desc} = req.body;
 
         let isRequire = await grade.findOne({gradeName, major});
         if (isRequire) {
@@ -78,7 +78,7 @@ router.post('/', superAdminAuth, async (req, res, next) => {
             })
         } else {
 
-            let data = await grade.create({gradeName, major});
+            let data = await grade.create({gradeName, major, desc});
             res.json({
                 code: 0,
                 msg: '添加成功',
@@ -95,9 +95,9 @@ router.post('/', superAdminAuth, async (req, res, next) => {
 router.put('/:id', superAdminAuth, async (req, res, next) => {
     try {
         let {id} = req.params;
-        let {gradeName, major} = req.body;
+        let {gradeName, major, desc} = req.body;
 
-        await grade.updateOne({_id: id}, {$set: {gradeName, major}});
+        await grade.updateOne({_id: id}, {$set: {gradeName, major, desc}});
         res.json({
             code: 0,
             msg: '修改成功'
