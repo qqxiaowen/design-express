@@ -6,6 +6,7 @@ const student = require('../model/student');
 const course = require('../model/course');
 
 const superAdminAuth = require('./superAdminAuth');
+const adminAuth = require('./adminAuth');
 const auth = require('./auth');
 
 // 注册教师用户
@@ -23,7 +24,7 @@ router.post('/teacher', superAdminAuth, async (req, res, next) => {
             })
         } else if (findData) {
             res.json({
-                msg: '该帐号已被注册'
+                msg: '该ID已被使用'
             })
         } else {
             if (!avatar) {
@@ -73,7 +74,7 @@ router.get(`/teacher`, superAdminAuth, async (req, res, next) => {
 })
 
 // 获取单个教师用户
-router.get(`/teacher/:id`, superAdminAuth, async (req, res, next) => {
+router.get(`/teacher/:id`, adminAuth, async (req, res, next) => {
     try{
         let {id} = req.params;
 
@@ -102,7 +103,7 @@ router.get(`/teacher/:id`, superAdminAuth, async (req, res, next) => {
 })
 
 // 修改单个教师用户
-router.put(`/teacher/:id`, superAdminAuth, async (req, res, next) => {
+router.put(`/teacher/:id`, adminAuth, async (req, res, next) => {
     try{
         let {id} = req.params;
         let {username, password, faculty, desc, avatar, sex} = req.body;
@@ -120,7 +121,7 @@ router.put(`/teacher/:id`, superAdminAuth, async (req, res, next) => {
 
 // 为教师用户添加超级管理员权限
 router.put(`/teacher/:id`, superAdminAuth, async (req, res, next) => {
-    try{
+    try {
         let {id} = req.params;
         await teacher.updateOne({_id: id}, {$set: {superAdmin: 1}});
         res.json({
@@ -136,7 +137,7 @@ router.put(`/teacher/:id`, superAdminAuth, async (req, res, next) => {
 
 // 删除单个教师用户
 router.delete(`/teacher/:id`, superAdminAuth, async (req ,res, next) => {
-    try{
+    try {
         let {id} = req.params;
         let findCourse = course.findOne({teacher: id});
         if (findCourse) {
