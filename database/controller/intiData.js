@@ -5,6 +5,8 @@ const student = require('../model/student');
 const faculty = require('../model/faculty');
 const major = require('../model/major');
 const grade = require('../model/grade');
+const subject = require('../model/subject');
+const course = require('../model/course');
 
 router.get('/', async (req, res, next) => {
     try {
@@ -32,7 +34,7 @@ router.get('/', async (req, res, next) => {
                 numId: '1001',
                 password: '123456',
                 desc: '这是第一个教师用户',
-                avatar: 'http://pbl.mawenli.xyz/avatar1.png',
+                avatar: 'http://pbl.mawenli.xyz/avatar0.png',
                 faculty: addFaculty._id,
                 sex: 0,
                 superAdmin: 1
@@ -42,10 +44,69 @@ router.get('/', async (req, res, next) => {
                 username: '肖文',
                 numId: '1534120211',
                 password: '123456',
-                desc: '这是第一个学生用户',
-                avatar: 'http://pbl.mawenli.xyz/avatar2.png',
+                desc: '这是第1个学生用户',
+                avatar: 'http://pbl.mawenli.xyz/avatar1.png',
                 grade: addGrade._id,
                 sex: 1
+            })
+
+            // 测试批量添加学生
+            let addStudents = await student.insertMany([
+                {
+                    username: '肖文2',
+                    numId: '1534120212',
+                    password: '123456',
+                    desc: '这是第2个学生用户',
+                    avatar: 'http://pbl.mawenli.xyz/avatar2.png',
+                    grade: addGrade._id,
+                    sex: 1
+                },
+                {
+                    username: '肖文3',
+                    numId: '1534120213',
+                    password: '123456',
+                    desc: '这是第3个学生用户',
+                    avatar: 'http://pbl.mawenli.xyz/avatar3.png',
+                    grade: addGrade._id,
+                    sex: 1
+                },
+                {
+                    username: '肖文4',
+                    numId: '1534120214',
+                    password: '123456',
+                    desc: '这是第4个学生用户',
+                    avatar: 'http://pbl.mawenli.xyz/avatar4.png',
+                    grade: addGrade._id,
+                    sex: 1
+                },
+                {
+                    username: '肖文5',
+                    numId: '1534120215',
+                    password: '123456',
+                    desc: '这是第5个学生用户',
+                    avatar: 'http://pbl.mawenli.xyz/avatar5.png',
+                    grade: addGrade._id,
+                    sex: 1
+                },
+            ])
+
+            let addSubject = await subject.create({
+                subjectName: 'HTML+CSS+JavaScript',
+                desc: '这是这门课程的简介'
+            })
+
+            let addCourse = await course.create({
+                course_name: addSubject._id,
+                time_site: [
+                    {
+                        day: 1,
+                        node: 1,
+                        classroom: '1#409'
+                    }
+                ],
+                grade: addGrade._id,
+                teacher: addTeacher._id
+
             })
     
             res.json({
@@ -55,7 +116,10 @@ router.get('/', async (req, res, next) => {
                 addMajor,
                 addGrade,
                 addTeacher,
-                addStudent
+                addStudent,
+                addStudents,
+                addSubject,
+                addCourse
             })
         } else {
             res.json({
@@ -67,7 +131,7 @@ router.get('/', async (req, res, next) => {
     } catch(err) {
         res.json({
             code: 403,
-            msg: '已初始化过 err'
+            msg: '已初始化过 catch(err)'
         })
         next(err);
     }

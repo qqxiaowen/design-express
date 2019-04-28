@@ -17,6 +17,10 @@ router.get('/grade/:id', async (req, res, next) => {
             .populate({
                 path: 'grade',
                 select: 'gradeName'
+            })
+            .populate({
+                path: 'subject',
+                select: 'course_name'
             });
         res.json({
             code: 0,
@@ -41,6 +45,10 @@ router.get('/teacher/:id', async (req, res, next) => {
             .populate({
                 path: 'grade',
                 select: 'gradeName'
+            })
+            .populate({
+                path: 'subject',
+                select: 'course_name'
             });
         res.json({
             code: 0,
@@ -55,21 +63,14 @@ router.get('/teacher/:id', async (req, res, next) => {
 // 添加课程表
 router.post('/', adminAuth, async (req, res, next) => {
     try {
-        let {name, time_site, grade, teacher} = req.body;
-        let isRequire = await course.findOne({name});
-        if (isRequire) {
-            res.json({
-                code: 300,
-                msg: '已有该课程'
-            })
-        } else {
-            let data = await course.create({name, time_site, grade, teacher});
-            res.json({
-                code: 0,
-                msg: '添加成功',
-                data
-            })
-        }
+        let {course_name, time_site, grade, teacher} = req.body;
+        
+        let data = await course.create({course_name, time_site, grade, teacher});
+        res.json({
+            code: 0,
+            msg: '添加成功',
+            data
+        })
     } catch(err) {
         next(err);
     }
@@ -79,9 +80,9 @@ router.post('/', adminAuth, async (req, res, next) => {
 router.put('/:id', adminAuth, async (req, res, next) => {
     try {
         let {id} = req.params;
-        let {name, time_site, grade, teacher} = req.body;
+        let {course_name, time_site, grade, teacher} = req.body;
        
-        await course.updateOne({_id: id}, {$set: {name, time_site, grade, teacher}});
+        await course.updateOne({_id: id}, {$set: {course_name, time_site, grade, teacher}});
         res.json({
             code: 0,
             msg: '修改成功'

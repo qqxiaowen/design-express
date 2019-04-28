@@ -2,7 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const course = new Schema({
-    name: String,
+    course_name: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: 'subject'
+    },
     time_site: [
         {
             day: Number,
