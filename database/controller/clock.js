@@ -26,12 +26,12 @@ router.post('/', adminAuth, async (req, res, next) => {
 })
 
 // 教师发起自动考勤
-router.post('/teacher'. adminAuth, async (req, res, next) => {
+router.post('/teacher', adminAuth, async (req, res, next) => {
     try {
         let {teacherLocation, grade, clockName, course} = req.body;
         let teacher = req.sesison.user._id;
 
-        let allStudetnInfo =  await student.find({grade}).select('-password');
+        let allStudetnInfo = await student.find({grade});
         let content = [];
         allStudetnInfo.forEach( item => {
             let contentItem = {
@@ -51,9 +51,14 @@ router.post('/teacher'. adminAuth, async (req, res, next) => {
             data
         })
 
-        // 设置5分钟后自动删除该临时定位表
+        设置5分钟后自动删除该临时定位表
         setTimeout( () => {
-            await location.deleteOne({_id: data.id})
+            location.deleteOne({_id: data.id}).then(data => {
+                console.log('setTimeout函数下：',data);
+                
+            }).catch(err => {
+                console.log('setTimeout函数下：',err);
+            })
         }, 1000 * 60 * 5)
     } catch (err) {
         next(err);

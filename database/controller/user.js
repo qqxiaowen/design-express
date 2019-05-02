@@ -12,7 +12,7 @@ const auth = require('./auth');
 // 注册教师用户
 router.post('/teacher', superAdminAuth, async (req, res, next) => {
     try {
-        let {username, password, numId, faculty, desc, avatar, sex} = req.body;
+        let {username, password, numId, faculty, desc, avatar, sex, superAdmin = 0} = req.body;
 
         let findData = await teacher.findOne({numId})
         if (!username || !password || !numId) {
@@ -24,7 +24,7 @@ router.post('/teacher', superAdminAuth, async (req, res, next) => {
             })
         } else if (findData) {
             res.json({
-                msg: '该ID已被使用'
+                msg: '该工号已被使用'
             })
         } else {
             if (!avatar) {
@@ -32,7 +32,7 @@ router.post('/teacher', superAdminAuth, async (req, res, next) => {
                 avatar = `http://pbl.mawenli.xyz/avatar${avatarNumber}.png`;
             }
 
-            let data = await teacher.create({username, password, numId, faculty, desc, avatar, sex, superAdmin: 0})
+            let data = await teacher.create({username, password, numId, faculty, desc, avatar, sex, superAdmin})
             res.json({
                 code: 0,
                 msg: '添加教师用户成功',
@@ -59,7 +59,8 @@ router.get(`/teacher`, superAdminAuth, async (req, res, next) => {
             .populate({
                 path: 'faculty',
                 select: 'facultyName'
-            });
+            })
+            .sort('-superAdmin faculty');
         let count = await teacher.count();
         res.json({
             code: 0,
@@ -106,8 +107,8 @@ router.get(`/teacher/:id`, adminAuth, async (req, res, next) => {
 router.put(`/teacher/:id`, adminAuth, async (req, res, next) => {
     try{
         let {id} = req.params;
-        let {username, password, faculty, desc, avatar, sex} = req.body;
-        await teacher.updateOne({_id: id}, {$set: {username, password, faculty, desc, avatar, sex}});
+        let {username, faculty, desc, avatar, sex, superAdmin} = req.body;
+        await teacher.updateOne({_id: id}, {$set: {username, faculty, desc, avatar, sex, superAdmin}});
         res.json({
             code: 0,
             msg: '修改成功'
@@ -139,10 +140,11 @@ router.put(`/teacher/:id`, superAdminAuth, async (req, res, next) => {
 router.delete(`/teacher/:id`, superAdminAuth, async (req ,res, next) => {
     try {
         let {id} = req.params;
-        let findCourse = course.findOne({teacher: id});
+        let findCourse = await course.findOne({teacher: id});
         if (findCourse) {
             res.json({
-                msg: '请先删除该教师下的课程表'
+                msg: '请先删除该教师下的课程表',
+                findCourse
             })
         } else {
 
@@ -315,7 +317,7 @@ router.put(`/student/:id`, auth, async (req, res, next) => {
         let {username, password, grade, desc, avatar, sex} = req.body;
         let isTeacher = await teacher.findById(req.session.user._id);
         if (isTeacher && isTeacher.superAdmin == 1 || req.session.user._id == id) {
-            // 是教师用户 或个人用户
+            // 是管理员用户 或个人用户
 
             await student.updateOne({_id: id},{$set: {username, password, grade, desc, avatar, sex}});
             res.json({
@@ -329,12 +331,9 @@ router.put(`/student/:id`, auth, async (req, res, next) => {
             })
         }
 
-        
-
     } catch(err) {
         next(err);
     }
-    
 })
 
 // 删除单个普通用户
@@ -407,4 +406,22 @@ router.get(`/logout`, auth, (req, res) => {
     })
 })
 
+router.get('/myself', adminAuth, async (req, res, next) => {
+    try {
+        let _id = req.session.user._id
+
+        let teacherData = await teacher.findById({_id}).select('-password');
+
+        // let studentData = await student.findById({_id}).select('-password');
+
+        res.json({
+            code: 0,
+            msg: '获取个人信息',
+            data: teacherData
+        })
+    } catch(err) {
+
+        next(err);
+    }
+})
 module.exports = router;

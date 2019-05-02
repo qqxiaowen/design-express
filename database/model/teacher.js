@@ -5,7 +5,6 @@ const teacher = new Schema({
 username:
     {
         type: String,
-        unique: true,
         require: true
     },
 numId:

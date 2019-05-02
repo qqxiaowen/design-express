@@ -23,7 +23,7 @@ router.get('/', async (req, res, next) => {
 // 添加院系
 router.post('/', superAdminAuth, async (req, res, next) => {
     try {
-        let {facultyName} = req.body;
+        let {facultyName, desc = '很懒，没有添加简介'} = req.body;
         let isRequire = await faculty.findOne({facultyName, desc});
         if (isRequire) {
             res.json({
