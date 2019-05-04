@@ -20,6 +20,22 @@ router.get('/', async (req, res, next) => {
     }
 })
 
+// 获取单个院系信息
+router.get('/:id', async (req, res, next) => {
+    try {
+        let {id} = req.params;
+
+        let data = await faculty.findById(id);
+        res.json({
+            code: 0,
+            msg: '获取单个院系信息成功',
+            data
+        })
+    } catch(err) {
+        next(err);
+    }
+})
+
 // 添加院系
 router.post('/', superAdminAuth, async (req, res, next) => {
     try {
