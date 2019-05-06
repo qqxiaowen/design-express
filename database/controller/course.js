@@ -4,6 +4,61 @@ const course = require('../model/course');
 
 const adminAuth = require('./adminAuth');
 
+// 获取全部课程表 暂时不用
+router.get('/', async (req, res, next) => {
+    try {
+
+        let data = await course.find()
+            .populate({
+                path: 'teacher',
+                select: 'avatar username'
+            })
+            .populate({
+                path: 'grade',
+                select: 'gradeName'
+            })
+            .populate({
+                path: 'course_name',
+                select: 'subjectName'
+            });
+        res.json({
+            code: 0,
+            msg: '获取全部课程信息成功',
+            data
+        })
+    } catch(err) {
+        next(err);
+    }
+})
+
+// 获取单个课程表
+router.get('/:id', async (req, res, next) => {
+    try {
+        let {id} = req.params;
+
+        let data = await course.findById({_id: id})
+            // .populate({
+            //     path: 'teacher',
+            //     select: 'avatar username'
+            // })
+            .populate({
+                path: 'grade',
+                select: 'gradeName'
+            })
+            // .populate({
+            //     path: 'course_name',
+            //     select: 'subjectName'
+            // });
+        res.json({
+            code: 0,
+            msg: '获取单个课程信息成功',
+            data
+        })
+    } catch(err) {
+        next(err);
+    }
+})
+
 // 获取某班级下的所有课程表
 router.get('/grade/:id', async (req, res, next) => {
     try {
@@ -19,8 +74,8 @@ router.get('/grade/:id', async (req, res, next) => {
                 select: 'gradeName'
             })
             .populate({
-                path: 'subject',
-                select: 'course_name'
+                path: 'course_name',
+                select: 'subjectName'
             });
         res.json({
             code: 0,
@@ -47,8 +102,8 @@ router.get('/teacher/:id', async (req, res, next) => {
                 select: 'gradeName'
             })
             .populate({
-                path: 'subject',
-                select: 'course_name'
+                path: 'course_name',
+                select: 'subjectName'
             });
         res.json({
             code: 0,

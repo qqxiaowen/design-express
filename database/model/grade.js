@@ -3,7 +3,10 @@ const Schema = mongoose.Schema;
 
 const grade = new Schema({
     gradeName: String,
-    desc: String,
+    desc: {
+        type: String,
+        default: '还没有添加简介哟'
+    },
     major: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: 'major'

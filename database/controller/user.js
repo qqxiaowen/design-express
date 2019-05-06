@@ -314,12 +314,12 @@ router.get(`/student/:id`, auth, async (req, res, next) => {
 router.put(`/student/:id`, auth, async (req, res, next) => {
     try{
         let {id} = req.params;
-        let {username, password, grade, desc, avatar, sex} = req.body;
+        let {username, grade, desc, avatar, sex} = req.body;
         let isTeacher = await teacher.findById(req.session.user._id);
         if (isTeacher && isTeacher.superAdmin == 1 || req.session.user._id == id) {
             // 是管理员用户 或个人用户
 
-            await student.updateOne({_id: id},{$set: {username, password, grade, desc, avatar, sex}});
+            await student.updateOne({_id: id},{$set: {username, grade, desc, avatar, sex}});
             res.json({
                 code: 0,
                 msg: '修改成功'

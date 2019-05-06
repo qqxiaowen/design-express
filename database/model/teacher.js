@@ -14,7 +14,10 @@ numId:
         require: true
     },
 password: String,
-desc: String,
+desc: {
+    type: String,
+    default: '还没有添加简介哟'
+},
 sex: Number,
 avatar: String,
 faculty: {

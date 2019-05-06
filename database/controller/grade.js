@@ -4,7 +4,7 @@ const grade = require('../model/grade');
 
 const superAdminAuth = require('./superAdminAuth');
 
-// 获取所有班级信息
+// 获取所有班级信息 暂时不用
 router.get('/', async (req, res, next) => {
     try {
         let {pn, size} = req.query;
@@ -34,14 +34,11 @@ router.get('/', async (req, res, next) => {
 })
 
 // 获取某个专业下的所有班级信息
-router.get('/:id', async (req, res, next) => {
+router.get('/major/:id', async (req, res, next) => {
     try {
         let {id} = req.params;
-        let {pn, size} = req.query;
 
         let data = await grade.find({major: id})
-                .skip((pn - 1) * size)
-                .limit(size)
                 .sort({_id: -1})
                 .populate({
                     path:'major',
@@ -52,12 +49,36 @@ router.get('/:id', async (req, res, next) => {
                     }
                 });
         
-        let count = await grade.find({major: id}).count();
         res.json({
             code: 0,
             msg: '获取某个专业下的所有班级信息成功',
-            data,
-            count
+            data
+        })
+        
+    } catch(err) {
+        next(err);
+    }
+})
+
+// 获取单个班级信息
+router.get('/:id', async (req, res, next) => {
+    try {
+        let {id} = req.params;
+
+        let data = await grade.findById({_id: id})
+                .populate({
+                    path:'major',
+                    select: 'majorName faculty',
+                    populate: {
+                        path: 'faculty',
+                        select: 'facultyName'
+                    }
+                });
+        
+        res.json({
+            code: 0,
+            msg: '获取某个班级信息成功',
+            data
         })
         
     } catch(err) {

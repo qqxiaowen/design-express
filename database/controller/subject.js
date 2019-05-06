@@ -13,15 +13,33 @@ router.get('/', async (req, res, next) => {
         let data = await subject.find()
                 .skip((pn - 1) * size)
                 .limit(size)
-                .sort({_id: -1})
+                .sort({_id: -1});
+        let count = await subject.count();
         res.json({
             code: 0,
             msg: '获取所有科目信息成功',
-            data
+            data,
+            count
         })
 
     } catch(err) {
         next(err)
+    }
+})
+
+// 获取单个科目信息
+router.get('/:id', async (req, res, next) => {
+    try {
+        let {id} = req.params;
+
+        let data = await subject.findById({_id: id});
+        res.json({
+            code:0,
+            msg: '获取某科目信息成功',
+            data
+        })
+    } catch(err) {
+        next(err);
     }
 })
 

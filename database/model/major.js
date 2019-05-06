@@ -3,7 +3,10 @@ const Schema = mongoose.Schema;
 
 const major = new Schema({
     majorName: String,
-    desc: String,
+    desc: {
+        type: String,
+        default: '还没有添加简介哟'
+    },
     faculty: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: 'faculty'
