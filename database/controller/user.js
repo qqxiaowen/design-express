@@ -354,14 +354,59 @@ router.delete(`/student/:id`, superAdminAuth, async (req, res, next) => {
 
 // 分割线----------------------------------------------
 
+// 用户修改个人密码
+router.put(`/password/:id`, auth, async (req, res, next) => {
+    try {
+        let {id} = req.params;
+        let {password, newPassword} = req.body;
+        let findTeacher = await teacher.findById({_id: id});
+        let findStudent = await student.findById({_id: id});
+        if (findTeacher && findTeacher.password == password) {
+            // 教师用户
+
+            await teacher.updateOne({_id: id}, {$set: {password: newPassword}});
+            req.session.user = '';
+            res.json({
+                code: 0,
+                msg: '教师用户修改个人密码成功'
+            })
+        } else if(findStudent && findStudent.password ==password) {
+            // 学生用户
+
+            await student.updateOne({_id: id}, {$set: {password: newPassword}});
+            req.session.user = '';
+            res.json({
+                code: 0,
+                msg: '学生用户修改个人密码成功'
+            })
+        } else {
+            res.json({
+                msg: '输入原密码错误'
+            })
+        }
+    } catch(err) {
+        next(err);
+    }
+})
+
+// 分割线----------------------------------------------
+
 // 用户登录
 router.post('/login', async (req, res, next) => {
     try{
         let {numId, password} = req.body;
 
-        let teacherData = await teacher.findOne({numId});
+        let teacherData = await teacher.findOne({numId})
+            .populate({
+                path: 'faculty',
+                select: 'facultyName'
+            });
 
-        let studentData = await student.findOne({numId});
+        let studentData = await student.findOne({numId})
+        .populate({
+            path: 'grade',
+            select: 'gradeName'
+        });
         if (numId && password) {
             if (!teacherData && !studentData) {
                 res.json({
