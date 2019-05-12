@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const location = new Schema({
-    teacherLocation: Array,
+    teacherLocation: Object,
     clockId: String,
     grade: {
         type: mongoose.SchemaTypes.ObjectId,

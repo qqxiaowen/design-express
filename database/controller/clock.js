@@ -29,10 +29,21 @@ router.post('/', adminAuth, async (req, res, next) => {
 router.post('/teacher', adminAuth, async (req, res, next) => {
     try {
         let {teacherLocation, grade, clockName, course} = req.body;
-        let teacher = req.sesison.user._id;
+        let teacher = req.session.user._id;
+
+        let findLocation = await location.find({grade, teacher});
+        if (findLocation[0]) {
+            res.json({
+                code: 301,
+                msg: '已经发起过自动考勤了',
+                findLocation
+            })
+            return;
+        }
 
         let allStudetnInfo = await student.find({grade});
         let content = [];
+
         allStudetnInfo.forEach( item => {
             let contentItem = {
                 student: item._id,
@@ -48,10 +59,13 @@ router.post('/teacher', adminAuth, async (req, res, next) => {
         res.json({
             code: 0,
             msg: '教师发起自动考勤成功',
+            allStudetnInfo,
+            content,
+            clockLocation,
             data
         })
 
-        设置5分钟后自动删除该临时定位表
+        // 设置5分钟后自动删除该临时定位表
         setTimeout( () => {
             location.deleteOne({_id: data.id}).then(data => {
                 console.log('setTimeout函数下：',data);
@@ -79,25 +93,32 @@ router.post('/student', auth, async (req, res ,next) => {
                 msg: '该课程教师并没有发起自动考勤或此次考勤已超时'
             })
         } else {
-            let sub0 = findData.teacherLocation[0] - studentLocation[0];
-            let sub1 = findData.teacherLocation[1] - studentLocation[1];
+            let sub0 = findData.teacherLocation.lng - studentLocation.lng;
+            let sub1 = findData.teacherLocation.lat - studentLocation.lat;
             let distance = Math.sqrt( Math.pow(sub0, 2) - Math.pow(sub1, 2) * 10000000 );
             
             if (distance < 16000) {
-                // 出勤状态
-
-                let updata = clock.updateOne({_id: findData._id, $match: {"content.student": studentId}},{$set: {status: 1}});
+                // 出勤状态 16000约200m
+                let newStudentItem = {
+                    student: studentId,
+                    status: 2
+                }
+                let update = await clock.updateOne({_id: findData.clockId, 'content.student': studentId}, {'$set':  {'content.$': newStudentItem}});
                 res.json({
                     code: 0,
                     msg: '参与自动考勤成功',
-                    updata
+                    update,
+                    distance,
+                    findData
                 })
             } else {
                 res.json({
                     code: 302,
-                    msg: '距离过远'
+                    msg: '距离过远',
+                    distance
                 })
             }
+           
         }
     } catch (err) {
         next(err);
@@ -110,17 +131,26 @@ router.get('/teacher', adminAuth, async (req, res, next) => {
         let teacher = req.session.user._id;
 
         let data = await clock.find({teacher})
-            .populate({
-                path: 'content.student',
-                select: 'username numId avatar sex'
-            })
+            .sort('-createTime')
+            // .populate({
+            //     path: 'content.student',
+            //     select: 'username numId avatar sex'
+            // })
             .populate({
                 path: 'grade',
                 select: 'gradeName'
             })
             .populate({
+                path: 'teacher',
+                select: 'username'
+            })
+            .populate({
                 path: 'course',
-                select: 'name'
+                select: 'course_name',
+                populate: {
+                    path: 'course_name',
+                    select: 'subjectName'
+                }
             });
         res.json({
             code: 0,
@@ -140,17 +170,26 @@ router.get('/teacher/:course', adminAuth, async (req, res, next) => {
         let {course} = req.params;
 
         let data = await clock.find({teacher, course})
-            .populate({
-                path: 'content.student',
-                select: 'username numId avatar sex'
-            })
+            .sort('-createTime')
+            // .populate({
+            //     path: 'content.student',
+            //     select: 'username numId avatar sex'
+            // })
             .populate({
                 path: 'grade',
                 select: 'gradeName'
             })
             .populate({
+                path: 'teacher',
+                select: 'username'
+            })
+            .populate({
                 path: 'course',
-                select: 'name'
+                select: 'course_name',
+                populate: {
+                    path: 'course_name',
+                    select: 'subjectName'
+                }
             });
         res.json({
             code: 0,
@@ -176,18 +215,27 @@ router.get('/student/:course', auth, async (req, res, next) => {
         } else {
 
             let data = await clock.find({grade, course})
-                .populate({
-                    path: 'content.student',
-                    select: 'username numId avatar sex'
-                })
-                .populate({
-                    path: 'grade',
-                    select: 'gradeName'
-                })
-                .populate({
-                    path: 'course',
-                    select: 'name'
-                });
+            .sort('-createTime')
+            // .populate({
+            //     path: 'content.student',
+            //     select: 'username numId avatar sex'
+            // })
+            .populate({
+                path: 'grade',
+                select: 'gradeName'
+            })
+            .populate({
+                path: 'teacher',
+                select: 'username'
+            })
+            .populate({
+                path: 'course',
+                select: 'course_name',
+                populate: {
+                    path: 'course_name',
+                    select: 'subjectName'
+                }
+            });
             res.json({
                 code: 0,
                 msg: '学生获取本班某课程考勤成功',
@@ -195,6 +243,87 @@ router.get('/student/:course', auth, async (req, res, next) => {
             })
         }
     } catch(err) {
+        next(err);
+    }
+})
+
+// 学生查看本班级考勤记录
+router.get('/student', auth, async (req, res, next) => {
+    try {
+        let grade = req.session.user.grade._id;
+        if (!grade) {
+            res.json({
+                code: 300,
+                msg: '只有学生用户可查询'
+            })
+        } else {
+
+            let data = await clock.find({grade})
+            .sort('-createTime')
+            // .populate({
+            //     path: 'content.student',
+            //     select: 'username numId avatar sex'
+            // })
+            .populate({
+                path: 'grade',
+                select: 'gradeName'
+            })
+            .populate({
+                path: 'teacher',
+                select: 'username'
+            })
+            .populate({
+                path: 'course',
+                select: 'course_name',
+                populate: {
+                    path: 'course_name',
+                    select: 'subjectName'
+                }
+            });
+            res.json({
+                code: 0,
+                msg: '学生获取本班考勤成功',
+                data
+            })
+        }
+    } catch(err) {
+        next(err);
+    }
+})
+
+//查看单条考勤记录
+router.get('/:id', auth, async (req, res, next) => {
+    try {
+        let {id} = req.params;
+
+        let data = await clock.findById({_id: id})
+            .populate({
+                path: 'content.student',
+                select: 'username numId avatar sex'
+            })
+            .populate({
+                path: 'grade',
+                select: 'gradeName'
+            })
+            .populate({
+                path: 'teacher',
+                select: 'username'
+            })
+            .populate({
+                path: 'course',
+                select: 'course_name',
+                populate: {
+                    path: 'course_name',
+                    select: 'subjectName'
+                }
+            });
+        res.json({
+            code: 0,
+            msg: '获取单个考勤信息成功',
+            data
+        })
+
+    } catch (err) {
         next(err);
     }
 })
