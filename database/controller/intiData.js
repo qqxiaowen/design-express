@@ -16,17 +16,40 @@ router.get('/', async (req, res, next) => {
                 facultyName: '信息工程学院',
                 desc: '这是信心工程学院的简介'
             })
+
+            let addFaculty2 = await faculty.create({
+                facultyName: '国际学院',
+                desc: '这是国际学院的简介'
+            })
     
             let addMajor = await major.create({
                 majorName: '软件工程',
                 faculty: addFaculty._id,
                 desc: '这是软件工程专业的简介'
             })
+
+            let addMajor2 = await major.create({
+                majorName: '网络工程',
+                faculty: addFaculty._id,
+                desc: '这是网工专业的简介'
+            })
     
             let addGrade = await grade.create({
                 gradeName: '软工1501B',
                 major: addMajor._id,
                 desc: '这是软工1501B班的简介'
+            })
+
+            let addGrade2 = await grade.create({
+                gradeName: '软工1801B',
+                major: addMajor._id,
+                desc: '这是软工1801B班的简介'
+            })
+
+            let addGrade3 = await grade.create({
+                gradeName: '网工1601B',
+                major: addMajor2._id,
+                desc: '这是网工班的简介'
             })
     
             let addTeacher = await teacher.create({
@@ -48,6 +71,16 @@ router.get('/', async (req, res, next) => {
                 avatar: 'http://pbl.mawenli.xyz/avatar1.png',
                 grade: addGrade._id,
                 sex: 1
+            })
+
+            let addStudent2 = await student.create({
+                username: '马雯丽',
+                numId: '1634120135',
+                password: '123456',
+                desc: 'xx',
+                avatar: 'http://pbl.mawenli.xyz/avatar7.png',
+                grade: addGrade._id,
+                sex: 0
             })
 
             // 测试批量添加学生
