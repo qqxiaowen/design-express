@@ -25,7 +25,7 @@ router.post('/', adminAuth, async (req, res, next) => {
     }
 })
 
-// 教师发起自动考勤
+// 教师发起定位考勤
 router.post('/teacher', adminAuth, async (req, res, next) => {
     try {
         let {teacherLocation, grade, clockName, course} = req.body;
@@ -35,7 +35,7 @@ router.post('/teacher', adminAuth, async (req, res, next) => {
         if (findLocation[0]) {
             res.json({
                 code: 301,
-                msg: '已经发起过自动考勤了',
+                msg: '已经发起过定位考勤了',
                 findLocation
             })
             return;
@@ -58,7 +58,7 @@ router.post('/teacher', adminAuth, async (req, res, next) => {
 
         res.json({
             code: 0,
-            msg: '教师发起自动考勤成功',
+            msg: '教师发起定位考勤成功',
             allStudetnInfo,
             content,
             clockLocation,
@@ -80,7 +80,7 @@ router.post('/teacher', adminAuth, async (req, res, next) => {
     
 })
 
-// 学生参与自动考勤
+// 学生参与定位考勤
 router.post('/student', auth, async (req, res ,next) => {
     try {
         let {grade, teacher, studentLocation} = req.body;
@@ -90,7 +90,7 @@ router.post('/student', auth, async (req, res ,next) => {
         if (!findData) {
             res.json({
                 code: 301,
-                msg: '该课程教师并没有发起自动考勤或此次考勤已超时'
+                msg: '该课程教师并没有发起定位考勤或此次考勤已超时'
             })
         } else {
             let sub0 = findData.teacherLocation.lng - studentLocation.lng;
@@ -106,7 +106,7 @@ router.post('/student', auth, async (req, res ,next) => {
                 let update = await clock.updateOne({_id: findData.clockId, 'content.student': studentId}, {'$set':  {'content.$': newStudentItem}});
                 res.json({
                     code: 0,
-                    msg: '参与自动考勤成功',
+                    msg: '参与定位考勤成功',
                     update,
                     distance,
                     findData
