@@ -65,7 +65,7 @@ router.post('/teacher', adminAuth, async (req, res, next) => {
             data
         })
 
-        // 设置5分钟后自动删除该临时定位表
+        // 设置 20 分钟后自动删除该临时定位表
         setTimeout( () => {
             location.deleteOne({_id: data.id}).then(data => {
                 console.log('setTimeout函数下：',data);
@@ -73,7 +73,7 @@ router.post('/teacher', adminAuth, async (req, res, next) => {
             }).catch(err => {
                 console.log('setTimeout函数下：',err);
             })
-        }, 1000 * 60 * 5)
+        }, 1000 * 60 * 5 * 4)
     } catch (err) {
         next(err);
     }
