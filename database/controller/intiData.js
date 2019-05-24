@@ -64,23 +64,13 @@ router.get('/', async (req, res, next) => {
             })
     
             let addStudent = await student.create({
-                username: '肖文',
+                username: '肖文1',
                 numId: '1534120211',
                 password: '123456',
                 desc: '这是第1个学生用户',
                 avatar: 'http://pbl.mawenli.xyz/avatar1.png',
                 grade: addGrade._id,
                 sex: 1
-            })
-
-            let addStudent2 = await student.create({
-                username: '马雯丽',
-                numId: '1634120135',
-                password: '123456',
-                desc: 'xx',
-                avatar: 'http://pbl.mawenli.xyz/avatar7.png',
-                grade: addGrade._id,
-                sex: 0
             })
 
             // 测试批量添加学生
