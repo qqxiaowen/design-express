@@ -93,12 +93,18 @@ router.post('/student', auth, async (req, res ,next) => {
                 msg: '该课程教师并没有发起定位考勤或此次考勤已超时'
             })
         } else {
-            let sub0 = findData.teacherLocation.lng - studentLocation.lng;
-            let sub1 = findData.teacherLocation.lat - studentLocation.lat;
-            let distance = Math.sqrt( Math.pow(sub0, 2) - Math.pow(sub1, 2) * 10000000 );
+            let sub0 = Math.abs(findData.teacherLocation.lng - studentLocation.lng) * 10000000;
+            let sub1 = Math.abs(findData.teacherLocation.lat - studentLocation.lat) * 10000000;
+            // let distance = Math.sqrt( Math.pow(sub0, 2) - Math.pow(sub1, 2) * 10000000 );
+
+            // let sub0 = Math.abs(114.0089571476 - 114.0043652058 ) * 10000000;
+            // let sub1 = Math.abs(33.0094822246 - 33.0106968102) * 10000000;
+            // console.log(sub0, sub1)
+
+            let distance =  Math.abs(Math.pow(sub0, 2) - Math.pow(sub1, 2)) / 4357936;
             
-            if (distance < 16000) {
-                // 出勤状态 16000约200m
+            if (distance < 300) {
+                // 出勤状态 distance为距离单位（米）
                 let newStudentItem = {
                     student: studentId,
                     status: 2
